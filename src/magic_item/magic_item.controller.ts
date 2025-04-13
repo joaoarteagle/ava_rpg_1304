@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { MagicItemService } from './magic_item.service';
-import { CreateMagicItemDto } from './dto/create-magic_item.dto';
-import { UpdateMagicItemDto } from './dto/update-magic_item.dto';
+import { MagicItemService } from './providers/magic_item.service';
+import { CreateMagicItemDto } from './DTO/createMagicItem.dto';
 
 @Controller('magic-item')
 export class MagicItemController {
@@ -23,7 +22,7 @@ export class MagicItemController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMagicItemDto: UpdateMagicItemDto) {
+  update(@Param('id') id: string, @Body() updateMagicItemDto:any) {
     return this.magicItemService.update(+id, updateMagicItemDto);
   }
 
