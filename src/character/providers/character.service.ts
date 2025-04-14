@@ -1,7 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Character } from './character.interface';
 import { CreateCharacterDto } from '../DTO/createCharacter.dto';
+import { UpdateAdventurousName } from '../DTO/updateAdventurousName.dto';
+import { throwDeprecation } from 'process';
 
 
 @Injectable()
@@ -27,20 +29,66 @@ export class CharacterService {
     return this.characterModel.find();
   }
 
+  async findAmulet(id: string){
+    return await this.characterModel.findOne(
+      {
+        _id:id
+      },
+
+      {
+        magicItems:{
+          $elemMatch: {magicItemType: 'AMULET'},
+        },
+      },
+    );
+  
+
+  }
+
+  async findAllItems(id: string){
+    return await this.characterModel.findById(id).select('magicItems');
+  }
+
   async findOne(id: string) {
     return this.characterModel.findOne({_id: id});
   }
 
-  async update(id: number, adventurousName: string) {
+  async updateAdventurousName({userId, adventurousName}: UpdateAdventurousName){
     return await this.characterModel.findByIdAndUpdate(
-      id,
+      userId,
       {$set: {adventurousName}},
       {new: true}
 
     );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} character`;
+  async removeCharacter(id: string) {
+    return await this.characterModel.findByIdAndDelete(id);
   }
+
+  async deleteItemUser(idUser: string, idItem: string){
+    const user = await this.characterModel.findById(idUser);
+
+    if(!user) throw new NotFoundException("User Not Found");
+
+    console.log(user.magicItems)
+
+    const itemIndex = user.magicItems.findIndex(
+      (item) => item._id?.toString() === idItem,
+    );
+
+
+    if (itemIndex === -1){
+      throw new NotFoundException("ITEM NOT FOUND")
+    }
+
+
+    user.magicItems.splice(itemIndex, 1);
+     
+    await user.save()
+
+    return{ message: 'ITEM REMOVIDO DO PERSONAGEM ' + idUser}
+  }
+
+
 }

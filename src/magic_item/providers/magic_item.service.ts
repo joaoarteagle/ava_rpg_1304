@@ -1,8 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateCharacterDto } from 'src/character/DTO/createCharacter.dto';
 import { CreateMagicItemDto } from '../DTO/createMagicItem.dto';
 import { Model } from 'mongoose';
 import { MagicItem } from './magicItem.interface';
+import { MagicItemType } from '../DTO/magicItemTypeEnum';
 
 
 @Injectable()
@@ -12,7 +13,25 @@ export class MagicItemService {
       private magicItemModel: Model<MagicItem>,
     ){}
 
+  async adicionarItem(userId: string, dto: CreateMagicItemDto ): Promise<MagicItem>{
+    const limit = 1;
 
+    if(dto.magicItemType === MagicItemType.AMULET){
+      const qnt = await this.magicItemModel.countDocuments({
+        userId, 
+        magicItemType: MagicItemType.AMULET,
+      });
+
+      if(qnt >= limit){
+        throw new BadRequestException("Já possui 1 AMULETO")
+
+      }
+    }
+
+
+    const novoItem = new this.magicItemModel({...dto, userId});
+    return novoItem.save();
+  }
 
 
   async create(createMagicItemDto: CreateMagicItemDto): Promise<MagicItem> {
@@ -25,8 +44,8 @@ export class MagicItemService {
     return await this.magicItemModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} magicItem`;
+  async findOne(id: string) {
+    return await this.magicItemModel.findById(id);
   }
 
   update(id: number, updateMagicItemDto: any) {

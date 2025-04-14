@@ -22,7 +22,7 @@ export class CreateCharacterDto{
 
         @ApiProperty({ required: true, default: [{
                 magicItemName: 'ARMA SUPREMA',
-                magitItemType: 'WEAPON',
+                magicItemType: 'WEAPON',
                 strength: 5,
                 defense: 5,
         }]})

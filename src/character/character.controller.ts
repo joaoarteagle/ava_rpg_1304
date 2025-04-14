@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { CharacterService } from './providers/character.service';
 import { CreateCharacterDto } from './DTO/createCharacter.dto';
 import { response } from 'express';
+import { UpdateAdventurousName } from './DTO/updateAdventurousName.dto';
+import { find } from 'rxjs';
 @Controller('character')
 export class CharacterController {
   constructor(private readonly characterService: CharacterService) {}
@@ -30,13 +32,29 @@ export class CharacterController {
     return this.characterService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCharacterDto: any) {
-    return this.characterService.update(+id, updateCharacterDto);
+  @Get(':id/items')
+  findAllItems(@Param('id') id: string){
+    return this.characterService.findAllItems(id);
+  }
+
+  @Get(':id/AMULET')
+  findAmulet(@Param('id') id: string){
+    return this.characterService.findAmulet(id);
+  }
+
+  @Delete(":idUser/items/:idItem")
+  deleteItemUser(@Param('idUser') idUser: string, @Param("idItem") idItem: string){
+    return this.characterService.deleteItemUser(idUser, idItem);
+
+  }
+
+  @Put(':id')
+  updateAdventurousName(@Param('id') id: string, @Body() {userId, adventurousName}: UpdateAdventurousName) {
+    return this.characterService.updateAdventurousName({userId, adventurousName});
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.characterService.remove(+id);
+    return this.characterService.removeCharacter(id);
   }
 }
